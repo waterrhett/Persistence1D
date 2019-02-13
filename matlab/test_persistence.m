@@ -1,8 +1,8 @@
 % mex run_persistence1d.cpp 
 clear;
 close all;
-sil_area = textread('sil_area_data.txt');
-sil_len = textread('sil_len_data.txt');
+sil_area = textread('input/bullet_sil_area_data.txt');
+sil_len = textread('input/bullet_sil_len_data.txt');
 sil_area = sil_area';
 sil_len = sil_len';
 
@@ -21,8 +21,8 @@ x = 1:n;
 % plot(x, sil_len, 'b')
 % plot(x, d_sil_len, 'r')
 %% Thresholds
-sil_area_persistence_threshold_ratio = 0.1;
-sil_len_persistence_threshold_ratio = 0.1;
+sil_area_persistence_threshold_ratio = 0.05;
+sil_len_persistence_threshold_ratio = 0.05;
 dp_sil_area_threshold_ratio = 0.3;
 dp_sil_len_threshold_ratio = 0.4;
 
@@ -144,12 +144,12 @@ hold off;
 %% For outputing keyframe indices (comma separated)
 sorted_sa_ind = sort(threshold_sil_area_maxIndices);
 sorted_sa_ind = sorted_sa_ind-1;
-sorted_sa_ind = [0; sorted_sa_ind; 803];
+sorted_sa_ind = [0; sorted_sa_ind; length(sil_area)-1];
 output_sa_keyframes = sprintf('%.0f,' , sorted_sa_ind);
 
 sorted_sl_ind = sort(threshold_sil_len_maxIndices);
 sorted_sl_ind = sorted_sl_ind-1;
-sorted_sl_ind = [0; sorted_sl_ind; 803];
+sorted_sl_ind = [0; sorted_sl_ind; length(sil_area)-1];
 output_sl_keyframes = sprintf('%.0f,' , sorted_sl_ind);
 
 
