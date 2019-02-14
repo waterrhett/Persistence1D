@@ -1,8 +1,10 @@
 % mex run_persistence1d.cpp 
 clear;
 close all;
-sil_area = textread('input/bullet_sil_area_data.txt');
-sil_len = textread('input/bullet_sil_len_data.txt');
+sil_area = textread('input/ha_33_sil_area_data.txt');
+sil_len = textread('input/ha_33_sil_len_data.txt');
+% sil_area = textread('input/muscle_Squat_1_zoom_in_GreenScreen2_mini_sil_area_data.txt');
+% sil_len = textread('input/muscle_Squat_1_zoom_in_GreenScreen2_mini_sil_len_data.txt');
 sil_area = sil_area';
 sil_len = sil_len';
 
@@ -25,6 +27,7 @@ sil_area_persistence_threshold_ratio = 0.05;
 sil_len_persistence_threshold_ratio = 0.05;
 dp_sil_area_threshold_ratio = 0.3;
 dp_sil_len_threshold_ratio = 0.4;
+top_k = 8;
 
 %% Compute the local maxima
 [sil_area_minIndices sil_area_maxIndices sil_area_persistence sil_area_globalMinIndex sil_area_globalMinValue] = ...
@@ -45,6 +48,10 @@ sil_len_persistent_features = ...
     sil_len_persistence_threshold_ratio * sil_len_persistence_diff);
 threshold_sil_area_maxIndices = sil_area_persistent_features(:,2);
 threshold_sil_len_maxIndices = sil_len_persistent_features(:,2);
+
+%% Pick the top_k local maxima
+sil_area_top_k_maxIndices = sil_area_maxIndices(end-top_k+1:end);
+sil_len_top_k_maxIndices = sil_len_maxIndices(end-top_k+1:end);
 
 %% Using Douglas-Peucker on local maxima
 % Turn them into data points first
@@ -72,7 +79,7 @@ dp_sil_len_maxima_data_pts = DouglasPeucker(...
 
 %%
 figure;
-subplot(3, 1, 1);
+subplot(2, 1, 1);
 plot(x, sil_area, 'r');
 title('Silhouette Area with All Local Maxima');
 hold on;
@@ -84,31 +91,41 @@ scatter(sil_area_maxIndices, markers, 'blue', 'fill');
 %     'yellow', 'fill');
 hold off;
 
-subplot(3, 1, 2);
+% subplot(2, 1, 2);
+% plot(x, sil_area, 'r');
+% title(strcat(...
+%     'Silhouette Area Local Maxima with Persistence > ', ...
+%     num2str(sil_area_persistence_threshold_ratio), ...
+%     ' of Max Persistence'));
+% hold on;
+% markers = sil_area(threshold_sil_area_maxIndices);
+% scatter(threshold_sil_area_maxIndices, markers, 'blue', 'fill');
+% hold off;
+
+subplot(2, 1, 2);
 plot(x, sil_area, 'r');
 title(strcat(...
-    'Silhouette Area Local Maxima with Persistence > ', ...
-    num2str(sil_area_persistence_threshold_ratio), ...
-    ' of Max Persistence'));
+    'Top ', num2str(top_k), ...
+    ' Silhouette Area Local Maxima'));
 hold on;
-markers = sil_area(threshold_sil_area_maxIndices);
-scatter(threshold_sil_area_maxIndices, markers, 'blue', 'fill');
+markers = sil_area(sil_area_top_k_maxIndices);
+scatter(sil_area_top_k_maxIndices, markers, 'blue', 'fill');
 hold off;
 
-subplot(3, 1, 3);
-plot(x, sil_area, 'r');
-title(strcat(...
-    'Silhouette Area Local Maxima (DP) threshold > ',...
-    num2str(dp_sil_area_threshold_ratio),...
-    ' of Max Persistence'));
-
-hold on;
-scatter(dp_sil_area_maxima_data_pts(1,:), dp_sil_area_maxima_data_pts(2,:), ...
-    'blue', 'fill');
-hold off;
+% subplot(3, 1, 3);
+% plot(x, sil_area, 'r');
+% title(strcat(...
+%     'Silhouette Area Local Maxima (DP) threshold > ',...
+%     num2str(dp_sil_area_threshold_ratio),...
+%     ' of Max Persistence'));
+% 
+% hold on;
+% scatter(dp_sil_area_maxima_data_pts(1,:), dp_sil_area_maxima_data_pts(2,:), ...
+%     'blue', 'fill');
+% hold off;
 %%
 figure;
-subplot(3, 1, 1);
+subplot(2, 1, 1);
 plot(x, sil_len, 'r');
 title('Silhouette Length with All Local Maxima');
 hold on;
@@ -120,27 +137,37 @@ scatter(sil_len_maxIndices, markers, 'blue', 'fill');
 %     'yellow', 'fill');
 hold off;
 
-subplot(3, 1, 2);
+% subplot(2, 1, 2);
+% plot(x, sil_len, 'r');
+% title(strcat(...
+%     'Silhouette Length Local Maxima with Persistence > ', ...
+%     num2str(sil_len_persistence_threshold_ratio), ...
+%     ' of Max Persistence'));
+% hold on;
+% markers = sil_len(threshold_sil_len_maxIndices);
+% scatter(threshold_sil_len_maxIndices, markers, 'blue', 'fill');
+% hold off;
+
+subplot(2, 1, 2);
 plot(x, sil_len, 'r');
 title(strcat(...
-    'Silhouette Length Local Maxima with Persistence > ', ...
-    num2str(sil_len_persistence_threshold_ratio), ...
-    ' of Max Persistence'));
+    'Top ', num2str(top_k), ...
+    ' Silhouette Length Local Maxima'));
 hold on;
-markers = sil_len(threshold_sil_len_maxIndices);
-scatter(threshold_sil_len_maxIndices, markers, 'blue', 'fill');
+markers = sil_len(sil_len_top_k_maxIndices);
+scatter(sil_len_top_k_maxIndices, markers, 'blue', 'fill');
 hold off;
 
-subplot(3, 1, 3);
-plot(x, sil_len, 'r');
-title(strcat(...
-    'Silhouette Length Local Maxima (DP) threshold > ',...
-    num2str(dp_sil_len_threshold_ratio),...
-    ' of Max Persistence'));
-hold on;
-scatter(dp_sil_len_maxima_data_pts(1,:), dp_sil_len_maxima_data_pts(2,:), ...
-    'blue', 'fill');
-hold off;
+% subplot(3, 1, 3);
+% plot(x, sil_len, 'r');
+% title(strcat(...
+%     'Silhouette Length Local Maxima (DP) threshold > ',...
+%     num2str(dp_sil_len_threshold_ratio),...
+%     ' of Max Persistence'));
+% hold on;
+% scatter(dp_sil_len_maxima_data_pts(1,:), dp_sil_len_maxima_data_pts(2,:), ...
+%     'blue', 'fill');
+% hold off;
 %% For outputing keyframe indices (comma separated)
 sorted_sa_ind = sort(threshold_sil_area_maxIndices);
 sorted_sa_ind = sorted_sa_ind-1;
